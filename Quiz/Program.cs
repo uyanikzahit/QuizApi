@@ -1,22 +1,22 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ?? appsettings.json'dan JWT ayarlarýný al
+//  appsettings.json'dan JWT ayarlarýný al
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
 
+//  Authentication Servisi (JWT)
 builder.Services.AddAuthentication(options =>
 {
-    // ? Default authentication þemasý belirtiliyor
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
 .AddJwtBearer(options =>
 {
-    // ? Token doðrulama kurallarý
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -29,7 +29,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// CORS ve diðer servisler
+//  CORS yapýlandýrmasý
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -40,13 +40,50 @@ builder.Services.AddCors(options =>
     });
 });
 
+//  Controller ve Swagger servisleri
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+//  Swagger + JWT Ayarlarý
+builder.Services.AddSwaggerGen(c =>
+{
+    // Diðer Swagger ayarlarýn burada olabilir...
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = @"JWT Authorization header using the Bearer scheme.  
+                      Enter 'Bearer' [space] and then your token in the text input below.  
+                      Example: 'Bearer eyJhbGciOiJIUzI1NiIs...'",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                },
+                Scheme = "oauth2",
+                Name = "Bearer",
+                In = ParameterLocation.Header,
+
+            },
+            new List<string>()
+        }
+    });
+});
+
 
 var app = builder.Build();
 
-// ?? Middleware sýrasý önemli
+//  Middleware sýralamasý
 app.UseCors("AllowAll");
 
 if (app.Environment.IsDevelopment())
@@ -55,8 +92,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseAuthentication(); // önce kimlik doðrulama
-app.UseAuthorization();  // sonra yetkilendirme
+app.UseAuthentication(); //  Kimlik doðrulama
+app.UseAuthorization();  //  Yetkilendirme
 
 app.MapControllers();
 app.Run();

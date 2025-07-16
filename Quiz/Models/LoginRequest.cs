@@ -1,18 +1,14 @@
-﻿namespace QuizApi.Models
+﻿// Models/LoginRequest.cs
+using System.ComponentModel.DataAnnotations;
+
+namespace QuizApi.Models
 {
-    /// <summary>
-    /// Kullanıcı giriş bilgilerini içeren model.
-    /// </summary>
     public class LoginRequest
     {
-        /// <summary>
-        /// Kullanıcı adı (örnek: admin)
-        /// </summary>
+        [Required(ErrorMessage = "Kullanıcı adı zorunludur.")]
         public string Username { get; set; } = null!;
 
-        /// <summary>
-        /// Parola (örnek: admin123)
-        /// </summary>
+        [Required(ErrorMessage = "Parola zorunludur.")]
         public string Password { get; set; } = null!;
     }
 }

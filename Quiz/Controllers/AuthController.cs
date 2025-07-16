@@ -54,7 +54,7 @@ namespace QuizApi.Controllers
                 issuer: jwtSettings["Issuer"],
                 audience: jwtSettings["Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(int.Parse(jwtSettings["ExpiryMinutes"] ?? "60")),
+                expires: DateTime.UtcNow.AddMinutes(int.Parse(jwtSettings["ExpiryMinutes"] ?? "60000000")),
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
