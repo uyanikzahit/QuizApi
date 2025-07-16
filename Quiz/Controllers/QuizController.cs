@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using QuizApi.Models;
 using QuizApi.Services;
 using System;
@@ -9,6 +10,7 @@ namespace QuizApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize] // Controller seviyesinde yetkilendirme - tüm endpointleri korur
     public class QuizController : ControllerBase
     {
         private readonly QuestionService _questionService;
