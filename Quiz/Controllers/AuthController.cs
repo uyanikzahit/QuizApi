@@ -3,7 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.Extensions.Configuration;
+using QuizApi.Models;
 
 namespace QuizApi.Controllers
 {
@@ -21,6 +21,9 @@ namespace QuizApi.Controllers
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginRequest request)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             // Basit kullanıcı doğrulama (örnek)
             if (request.Username == "admin" && request.Password == "admin123")
             {
@@ -28,7 +31,7 @@ namespace QuizApi.Controllers
                 return Ok(new
                 {
                     token,
-                    message = "Giriş başarılı!" // Kullanıcıya dönen mesaj eklendi
+                    message = "Giriş başarılı!"
                 });
             }
 
@@ -56,11 +59,5 @@ namespace QuizApi.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-    }
-
-    public class LoginRequest
-    {
-        public string Username { get; set; } = null!;
-        public string Password { get; set; } = null!;
     }
 }
