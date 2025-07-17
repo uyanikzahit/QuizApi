@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using QuizApi.Services; // Servis namespace'in
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,15 +31,20 @@ builder.Services.AddAuthentication(options =>
 });
 
 //  CORS yapýlandýrmasý
-builder.Services.AddCors(options =>
+builder.Services.AddCors(ops =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    ops.AddPolicy("AllowAll", policy =>
     {
         policy.AllowAnyOrigin()
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
 });
+
+// DI için servisleri ekle
+builder.Services.AddSingleton<ScoreService>();
+// Eðer varsa QuestionService de burada eklenmeli.
+// builder.Services.AddSingleton<QuestionService>();
 
 //  Controller ve Swagger servisleri
 builder.Services.AddControllers();
@@ -47,8 +53,6 @@ builder.Services.AddEndpointsApiExplorer();
 //  Swagger + JWT Ayarlarý
 builder.Services.AddSwaggerGen(c =>
 {
-    // Diðer Swagger ayarlarýn burada olabilir...
-
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = @"JWT Authorization header using the Bearer scheme.  
